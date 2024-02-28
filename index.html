@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Enviar Localização para Firebase</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+    }
+    button {
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+</style>
+</head>
+<body>
+<h1>Enviar Localização para Firebase</h1>
+<button id="sendLocationBtn">Enviar Localização</button>
+
+<script src="https://www.gstatic.com/firebasejs/8.4.2/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.4.2/firebase-database.js"></script>
+<script>
+// Configuração do Firebase
+var firebaseConfig = {
+     apiKey: "AIzaSyDLRj4IZfFHztmoHnHYJ1pAV0V5EiRo1W4",
+  authDomain: "kgeral-f09db.firebaseapp.com",
+  databaseURL: "https://kgeral-f09db-default-rtdb.firebaseio.com",
+  projectId: "kgeral-f09db",
+  storageBucket: "kgeral-f09db.appspot.com",
+  messagingSenderId: "573980768382",
+  appId: "1:573980768382:web:d4e0d2edc74fe1fbdb402f",
+  measurementId: "G-Y829R42LEC"
+};
+
+
+// Inicialização do Firebase
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+
+document.getElementById("sendLocationBtn").addEventListener("click", function() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
+            saveToFirebase(latitude, longitude);
+        }, function(error) {
+            console.error("Erro ao obter localização: ", error);
+            alert("Erro ao obter localização. Por favor, permita o acesso à sua localização e tente novamente.");
+        });
+    } else {
+        alert("Geolocalização não é suportada por este navegador.");
+    }
+});
+
+function saveToFirebase(latitude, longitude) {
+    const newKey = firebase.database().ref().child('locations').push().key;
+    firebase.database().ref('locations/' + newKey).set({
+        latitude: latitude,
+        longitude: longitude
+    }).then(function() {
+        alert("Localização enviada com sucesso!");
+    }).catch(function(error) {
+        console.error("Erro ao enviar localização para o Firebase: ", error);
+        alert("Erro ao enviar localização para o Firebase. Por favor, tente novamente.");
+    });
+}
+</script>
+</body>
+</html>
